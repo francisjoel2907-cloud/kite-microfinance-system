@@ -9,71 +9,48 @@ export const getLoans = async (
   req: Request,
   res: Response
 ) => {
-
   try {
 
-    const loans = await Loan.find().populate("customerId").lean();
+    const loans = await Loan.find()
+      .populate("customerId")
+      .lean();
 
     const today = new Date();
 
-    const updatedLoans = loans.map(async (loan) => {
+    const updatedLoans = await Promise.all(
+      loans.map(async (loan) => {
 
-      let newStatus = loan.status;
+        let newStatus: "Active" | "Completed" | "Overdue" = "Active";
 
-      // RULE 1 → COMPLETED
-      if (loan.balance === 0) {
-        newStatus = "Completed";
-      }
+        if (loan.balance === 0) {
+          newStatus = "Completed";
 
-      // RULE 2 → OVERDUE
-      else if (
-        today > loan.dueDate &&
-        loan.balance > 0
-      ) {
-        newStatus = "Overdue";
-      }
+          await Customer.findByIdAndUpdate(
+            loan.customerId,
+            { eligible: true }
+          );
 
-      // RULE 3 → ACTIVE
-      else {
-        newStatus = "Active";
-      }
+        } else if (
+          today > loan.dueDate &&
+          loan.balance > 0
+        ) {
+          newStatus = "Overdue";
+        }
 
-      // update only if changed
-// RULE 1 → COMPLETED
-    if (loan.balance === 0) {
-      newStatus = "Completed";
+        if (loan.status !== newStatus) {
+          await Loan.findByIdAndUpdate(
+            loan._id,
+            { status: newStatus }
+          );
 
-     await Customer.findByIdAndUpdate(
-     loan.customerId,
-     { eligible: true }
-     );
-     }
+          loan.status = newStatus;
+        }
 
-// RULE 2 → OVERDUE
-     else if (
-     today > loan.dueDate &&
-     loan.balance > 0
-    ) {
-    newStatus = "Overdue";
-    }
+        return loan;
+      })
+    );
 
-// RULE 3 → ACTIVE
-    else {
-   newStatus = "Active";
-   }
-
-// update only if changed
-    if (loan.status !== newStatus) {
-    loan.status = newStatus;
-    }
-
-      return loan;
-
-    });
-
-    const resolvedLoans = await Promise.all(updatedLoans);
-
-    res.json(resolvedLoans);
+    res.json(updatedLoans);
 
   } catch (error) {
 
@@ -81,6 +58,30 @@ export const getLoans = async (
 
     res.status(500).json({
       message: "Failed to fetch loans"
+    });
+
+  }
+};
+
+export const getActiveLoans = async (
+  req: Request,
+  res: Response
+) => {
+
+  try {
+
+    const loans = await Loan.find({
+      status: "Active"
+    }).populate("customerId");
+
+    res.json(loans);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to fetch active loans"
     });
 
   }
