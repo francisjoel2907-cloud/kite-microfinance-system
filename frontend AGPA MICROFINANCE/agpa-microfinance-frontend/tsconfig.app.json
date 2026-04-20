@@ -15,17 +15,18 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-      "ignoreDeprecations": "6.0",
+    /* Fix for the TS5101 Error */
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "./", 
+    
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
 
     /* Linting */
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
