@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.get("/", protect, getLoans);
 
-router.get("/active", getActiveLoans);
+router.get("/active", protect, getActiveLoans);
 
 router.post("/", protect, createLoan);
 

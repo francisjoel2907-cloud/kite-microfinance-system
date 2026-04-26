@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes";
 import customerRoutes from "./routes/customer.routes";
 import loanRoutes from "./routes/loan.routes";
 import paymentRoutes from "./routes/payment.routes";
+import reportRoutes from "./routes/report.routes";
 
 dotenv.config();
 
@@ -25,14 +26,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/payments",paymentRoutes);
+app.use("/api/reports", reportRoutes);
+
 
 app.get("/", (_, res) => {
   res.send("Microfinance API running...");
 });
 
-/*
-PORT
-*/
+
 
 const PORT = process.env.PORT || 5000;
 
