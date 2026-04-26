@@ -63,29 +63,24 @@ export const getLoans = async (
   }
 };
 
-export const getActiveLoans = async (
-  req: Request,
-  res: Response
-) => {
-
+export const getActiveLoans = async (req: Request, res: Response) => {
   try {
 
-    const loans = await Loan.find({
-      status: "Active"
-    }).populate("customerId");
+    const loans = await Loan.find({ status: "Active" })
+      .populate("customerId")
+      .lean();
 
-    res.json(loans);
+    // ✅ FIX: remove broken loans (no customer)
+    const cleanLoans = loans.filter((loan: any) => loan.customerId);
+
+    res.json(cleanLoans);
 
   } catch (error) {
-
     console.error(error);
-
     res.status(500).json({
       message: "Failed to fetch active loans"
     });
-
   }
-
 };
 
 export const getTodayLoans = async (
