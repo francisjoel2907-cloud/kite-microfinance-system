@@ -423,20 +423,20 @@ useEffect(() => {
 
       const loans = await getActiveLoans();
 
-      const formatted = loans.map((loan: any) => ({
+   const formatted = loans
+  .filter((loan: any) => loan.customerId) // 🛑 REMOVE broken data
+  .map((loan: any) => ({
+    loanId: loan._id,
+    customerId: loan.customerId._id,
+    customerName: loan.customerId.clientName,
+    customerPhone: loan.customerId.clientPhone,
 
-        loanId: loan._id,
-        customerId: loan.customerId._id,
-        customerName: loan.customerId.clientName,
-        customerPhone: loan.customerId.clientPhone,
+    loanAmount: loan.loanAmount,
+    totalPayment: loan.totalPayment,
+    totalPaid: loan.totalPaid,
 
-        loanAmount: loan.loanAmount,
-        totalPayment: loan.totalPayment,
-        totalPaid: loan.totalPaid,
-
-        lastPaymentDate: loan.lastPaymentDate
-
-      }));
+    lastPaymentDate: loan.lastPaymentDate
+  }));
 
       setActiveLoans(formatted);
 
@@ -460,24 +460,24 @@ useEffect(() => {
 
       const data = await getPayments();
 
-      const formatted = data.map((p: any) => ({
+      const formatted = data
+  .filter((p: any) => p.customerId && p.loanId)
+  .map((p: any) => ({
+    id: p._id,
+    customerId: p.customerId._id,
+    customerName: p.customerId.clientName,
+    customerPhone: p.customerId.clientPhone,
 
-        id: p._id,
-        customerId: p.customerId._id,
-        customerName: p.customerId.clientName,
-        customerPhone: p.customerId.clientPhone,
+    loanId: p.loanId._id,
+    loanAmount: p.loanId.loanAmount,
 
-        loanId: p.loanId._id,
-        loanAmount: p.loanId.loanAmount,
+    amountPaid: p.amountPaid,
+    paidDate: p.paidDate,
 
-        amountPaid: p.amountPaid,
-        paidDate: p.paidDate,
+    notes: p.notes,
 
-        notes: p.notes,
-
-        isCompleted: p.loanId.status === "Completed"
-
-      }));
+    isCompleted: p.loanId.status === "Completed"
+  }));
 
       setPayments(formatted);
 
