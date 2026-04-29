@@ -424,7 +424,7 @@ useEffect(() => {
       const loans = await getActiveLoans();
 
    const formatted = loans
-  .filter((loan: any) => loan.customerId) // 🛑 REMOVE broken data
+  .filter((loan: any) => loan.customerId) 
   .map((loan: any) => ({
     loanId: loan._id,
     customerId: loan.customerId._id,
